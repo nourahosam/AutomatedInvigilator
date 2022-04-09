@@ -1,0 +1,202 @@
+<html>
+  
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>  
+  <!------ Include the above in your HEAD tag ---------->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet">
+  <style>
+    .container {
+      max-width: 1170px;
+      margin: auto;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .inbox_people {
+      background: #f8f8f8 none repeat scroll 0 0;
+      float: left;
+      overflow: hidden;
+      width: 40%;
+      border-right: 1px solid #c4c4c4;
+    }
+
+    .inbox_msg {
+      border: 1px solid #c4c4c4;
+      clear: both;
+      overflow: hidden;
+    }
+
+
+    .recent_heading {
+      float: left;
+      width: 40%;
+    }
+
+    .headind_srch {
+      padding: 10px 29px 10px 20px;
+      overflow: hidden;
+      border-bottom: 1px solid #c4c4c4;
+    }
+
+    .recent_heading h4 {
+      color: #05728f;
+      font-size: 21px;
+      margin: auto;
+    }
+
+
+
+
+    .chat_ib h5 {
+      font-size: 15px;
+      color: #464646;
+      margin: 0 0 8px 0;
+    }
+
+    .chat_ib h5 span {
+      font-size: 13px;
+      float: right;
+    }
+
+    .chat_ib p {
+      font-size: 14px;
+      color: #989898;
+      margin: auto
+    }
+
+    .chat_img {
+      float: left;
+      width: 11%;
+    }
+
+    .chat_ib {
+      float: left;
+      padding: 0 0 0 15px;
+      width: 88%;
+    }
+
+    .chat_people {
+      overflow: hidden;
+      clear: both;
+    }
+
+    .chat_list {
+      border-bottom: 1px solid #c4c4c4;
+      margin: 0;
+      padding: 18px 16px 10px;
+    }
+
+    .inbox_chat {
+      height: 550px;
+      overflow-y: scroll;
+    }
+
+
+    .time_date {
+      color: #747474;
+      display: block;
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+
+    .mesgs {
+      float: left;
+      padding: 30px 15px 0 25px;
+      width: 60%;
+    }
+
+    .outgoing_msg {
+      overflow: hidden;
+      margin: 26px 0 26px;
+    }
+
+    .sent_msg {
+      float: right;
+      width: 46%;
+    }
+
+    .messaging {
+      padding: 0 0 50px 0;
+    }
+
+    .msg_history {
+      height: 516px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h3 class=" text-center">Exam</h3>
+    <div class="messaging">
+      <div class="inbox_msg">
+        <div class="inbox_people">
+          <div class="headind_srch">
+            <div class="recent_heading">
+              <h4>Recent</h4>
+            </div>
+          </div>
+          <div class="inbox_chat">
+            <div class="chat_list">
+              <div class="chat_people">
+                <div class="chat_ib">
+                  <img src="{% url 'video_feed' %}">
+                </div>
+              </div>
+            </div>
+            <div class="chat_list">
+              <div class="chat_people">
+                <div class="chat_ib">
+                  <button> Submit </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><div class="mesgs">
+          <div class="msg_history">
+            <form>
+              <h4>1. Question </h4>
+              <input type="radio" id="html" name="fav_language" value="HTML">
+              <label for="html">Answer 1</label><br>
+              <input type="radio" id="css" name="fav_language" value="CSS">
+              <label for="css">Answer 2</label><br>
+              <input type="radio" id="javascript" name="fav_language" value="JavaScript">
+              <label for="javascript">Answer 3</label>
+              <br><br><br>
+              <h4>2. Question </h4>
+              <input type="radio" id="html" name="fav_language" value="HTML">
+              <label for="html">Answer 1</label><br>
+              <input type="radio" id="css" name="fav_language" value="CSS">
+              <label for="css">Answer 2</label><br>
+              <input type="radio" id="javascript" name="fav_language" value="JavaScript">
+              <label for="javascript">Answer 3</label>
+              <br><br><br>
+              <h4>3. Question </h4>
+              <input type="radio" id="html" name="fav_language" value="HTML">
+              <label for="html">Answer 1</label><br>
+              <input type="radio" id="css" name="fav_language" value="CSS">
+              <label for="css">Answer 2</label><br>
+              <input type="radio" id="javascript" name="fav_language" value="JavaScript">
+              <label for="javascript">Answer 3</label>
+              <br><br><br>
+              <h4>4. Question </h4>
+              <input type="radio" id="html" name="fav_language" value="HTML">
+              <label for="html">Answer 1</label><br>
+              <input type="radio" id="css" name="fav_language" value="CSS">
+              <label for="css">Answer 2</label><br>
+              <input type="radio" id="javascript" name="fav_language" value="JavaScript">
+              <label for="javascript">Answer 3</label>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

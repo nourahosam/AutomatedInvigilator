@@ -1,0 +1,299 @@
+<span id="hello-msg" value="{{ request.user}}">Hello, {{ request.user}}</span>
+
+<span><a class="hello-msg" href="{% url 'logout' %}">Logout</a></span>
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+
+    <title>Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+  
+  
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: #7abecc !important;
+      }
+      .user_card {
+        width: 350px;
+        margin-top: auto;
+        margin-bottom: auto;
+        background: #74cfbf;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        padding: 10px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        -webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        -moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        border-radius: 5px;
+  
+      }
+  
+      .form_container {
+        margin-top: 20px;
+      }
+  
+      #form-title{
+        color: #fff;
+        
+      }
+  
+      .login_btn {
+        width: 100%;
+        background: #33ccff !important;
+        color: white !important;
+      }
+      .login_btn:focus {
+        box-shadow: none !important;
+        outline: 0px !important;
+      }
+      .login_container {
+        padding: 0 2rem;
+      }
+      .input-group-text {
+        background: #f7ba5b !important;
+        color: white !important;
+        border: 0 !important;
+        border-radius: 0.25rem 0 0 0.25rem !important;
+      }
+      .input_user,
+      .input_pass:focus {
+        box-shadow: none !important;
+        outline: 0px !important;
+      }
+  
+      #messages{
+        background-color: grey;
+        color: #fff;
+        padding: 10px;
+        margin-top: 10px;
+      }
+    </style>
+</head>
+
+<body>
+
+<h1> Press record to enroll your voice. It is advised to record 5 records, each 10 seconds long.</h1>
+  <div id="controls">
+    <button id="recordButton" class="btn login_btn">Record</button>
+    <button class="btn login_btn" id="pauseButton" disabled>Pause</button>
+    <button class="btn login_btn" id="stopButton" disabled>Stop</button>
+    <form action='actionUrl' method='POST'><button class="btn login_btn" id="trainButton" disabled>Train</button></form>
+  </div>
+  <div id="formats">Start recording to see sample rate</div>
+  <p><strong>Recordings:</strong></p>
+  <ol id="recordingsList"></ol>
+  <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
+  <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  {% load static %}
+  <script>
+    URL = window.URL || window.webkitURL;
+
+    var gumStream; 						//stream from getUserMedia()
+    var rec; 							//Recorder.js object
+    var input; 							//MediaStreamAudioSourceNode we'll be recording
+
+    // shim for AudioContext when it's not avb. 
+    var AudioContext = window.AudioContext || window.webkitAudioContext;
+    var audioContext //audio context to help us record
+
+    var recordButton = document.getElementById("recordButton");
+    var stopButton = document.getElementById("stopButton");
+    var pauseButton = document.getElementById("pauseButton");
+    var trainButton = document.getElementById("trainButton");
+
+    //add events to those 2 buttons
+    recordButton.addEventListener("click", startRecording);
+    stopButton.addEventListener("click", stopRecording);
+    pauseButton.addEventListener("click", pauseRecording);
+
+    var count = 1;
+    function startRecording() {
+      console.log("recordButton clicked");
+
+      var constraints = { audio: true, video: false }
+
+      /*
+        Disable the record button until we get a success or fail from getUserMedia() 
+    */
+
+      recordButton.disabled = true;
+      stopButton.disabled = false;
+      pauseButton.disabled = false
+      
+      //trainButton.disabled = false;
+      /*
+          We're using the standard promise based getUserMedia() 
+          https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+      */
+
+      navigator.mediaDevices.getUserMedia(constraints).then(function (stream) {
+        console.log("getUserMedia() success, stream created, initializing Recorder.js ...");
+
+        /*
+          create an audio context after getUserMedia is called
+          sampleRate might change after getUserMedia is called, like it does on macOS when recording through AirPods
+          the sampleRate defaults to the one set in your OS for your playback device
+        */
+        audioContext = new AudioContext();
+
+        //update the format 
+        document.getElementById("formats").innerHTML = "Format: 1 channel pcm @ " + audioContext.sampleRate / 1000 + "kHz"
+
+        /*  assign to gumStream for later use  */
+        gumStream = stream;
+
+        /* use the stream */
+        input = audioContext.createMediaStreamSource(stream);
+
+        /* 
+          Create the Recorder object and configure to record mono sound (1 channel)
+          Recording 2 channels  will double the file size
+        */
+        rec = new Recorder(input, { numChannels: 1 })
+
+        //start the recording process
+        rec.record()
+
+        console.log("Recording started");
+
+      }).catch(function (err) {
+        //enable the record button if getUserMedia() fails
+        recordButton.disabled = false;
+        stopButton.disabled = true;
+        pauseButton.disabled = true
+        //trainButton.disabled = false;
+      });
+    }
+
+    function pauseRecording() {
+      console.log("pauseButton clicked rec.recording=", rec.recording);
+      if (rec.recording) {
+        //pause
+        rec.stop();
+        pauseButton.innerHTML = "Resume";
+      } else {
+        //resume
+        rec.record()
+        pauseButton.innerHTML = "Pause";
+
+      }
+    }
+
+    function stopRecording() {
+      console.log("stopButton clicked");
+
+      //disable the stop button, enable the record too allow for new recordings
+      stopButton.disabled = true;
+      recordButton.disabled = false;
+      pauseButton.disabled = true;
+      trainButton.disabled = false;
+
+      //reset button just in case the recording is stopped while paused
+      pauseButton.innerHTML = "Pause";
+
+      //tell the recorder to stop the recording
+      rec.stop();
+
+      //stop microphone access
+      gumStream.getAudioTracks()[0].stop();
+
+      //create the wav blob and pass it on to createDownloadLink
+      rec.exportWAV(createDownloadLink);
+    }
+
+    function createDownloadLink(blob) {
+
+      var url = URL.createObjectURL(blob);
+      var au = document.createElement('audio');
+      var li = document.createElement('li');
+      var link = document.createElement('a');
+
+      //name of .wav file to use during upload and download (without extendion)
+
+
+      //add controls to the <audio> element
+      au.controls = true;
+      au.src = url;
+
+      //save to disk link
+      link.href = url;
+
+
+      //add the new audio element to li
+      li.appendChild(au);
+
+      //add the filename to the li
+
+      //add the save to disk link to li
+      li.appendChild(link);
+
+      //upload link
+      var upload = document.createElement('a');
+      upload.href = "#";
+
+      upload.addEventListener("click", function (event) {
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function (e) {
+          if (this.readyState === 4) {
+            console.log("Server returned: ", e.target.responseText);
+          }
+        };
+        var fd = new FormData();
+        fd.append("audio_data", blob, filename);
+        //xhr.open("POST","upload.php",true);
+        xhr.send(fd);
+      })
+
+      /// save to disk
+
+      var filename = document.getElementById("hello-msg").getAttribute("value") + ".wav";
+    var filenamee = document.getElementById("hello-msg").getAttribute("value") + count + '.wav';
+    var filename3 = filenamee + ".wav";
+    count++;
+    //console.log(filename3);
+
+    var form = new FormData();
+    form.append('audio', blob, filenamee);
+
+    $.ajax({
+      url: '/verify',
+      type: 'POST',
+      data: form,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+        console.log('response' + JSON.stringify(data));
+        console.log(filenamee)
+      },
+      error: function () {
+        console.log("error");
+        console.log(filenamee)
+      }
+    });
+
+
+      li.appendChild(document.createTextNode(" "))//add a space in between
+      li.appendChild(upload)//add the upload link to li
+
+      //add the li element to the ol
+      recordingsList.appendChild(li);
+    }
+
+
+
+  </script>
+
+</body>
+
+</html>
